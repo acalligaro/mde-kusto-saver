@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "MDE Kusto Saver",
+  "version": "0.1.0",
+  "description": "Bibliothèque locale de requêtes KQL pour la chasse avancée Microsoft Defender : enregistrer, rechercher, recharger.",
+  "author": "Alexandre Calligaro",
+  "minimum_chrome_version": "111",
+  "permissions": ["scripting", "storage", "unlimitedStorage"],
+  "host_permissions": ["https://security.microsoft.com/*"],
+  "action": { "default_popup": "popup.html", "default_title": "MDE Kusto Saver" },
+  "options_ui": { "page": "popup.html", "open_in_tab": true }
+}
