@@ -37,7 +37,7 @@ function upsert(list, item) {
 
 // Untrusted import: keep well-formed entries only, imported entries win on id clash.
 function mergeImport(list, data) {
-  if (!Array.isArray(data)) throw new Error('Format invalide : un tableau JSON est attendu.');
+  if (!Array.isArray(data)) throw new Error('invalid-format'); // translated by the popup
   let out = list;
   for (const x of data) {
     if (!x || typeof x.name !== 'string' || typeof x.query !== 'string' || !x.name.trim() || !x.query.trim()) continue;
