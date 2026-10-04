@@ -1,5 +1,7 @@
 # MDE Kusto Saver
 
+*Bibliothèque de requêtes KQL pour la chasse avancée Microsoft Defender.* · [English version](README.en.md)
+
 Extension Chrome / Edge (Manifest V3) : bibliothèque locale de requêtes KQL pour la chasse avancée Microsoft Defender (`security.microsoft.com`). Enregistrer une requête depuis l'éditeur, la retrouver, la recharger en un clic.⁣‌‌‌‌‌‌‌​​​‌​​​‌​​‍‌⁣
 
 ![Menu de l'extension](docs/img/01-popup.png)
@@ -73,7 +75,8 @@ Même principes que Tenant Compass : pas d'étape de build, JavaScript vanilla, 
 | `lib.js` | `huntingUrl`, `isHunting`, `parseTags`, `matches`, `upsert`, `mergeImport` |
 | `test.js` | Tests : `node test.js` (Node 18+) |
 | `icons/` | `icon.svg` (source : bouclier bicolore + base de données) et rendus PNG 16 / 32 / 48 / 128 |
-| `docs/img/` | Captures de ce README |
+| `docs/img/` | Captures des README |
+| `LICENSE` | Licence d'utilisation |
 
 - **Aucun content script permanent.** Le menu injecte à la demande (`chrome.scripting.executeScript`, monde `MAIN`) une fonction qui lit ou écrit l'éditeur Monaco de la chasse avancée via `window.monaco`.
 - **Aucun appel réseau, aucun jeton lu.**
@@ -83,3 +86,7 @@ Même principes que Tenant Compass : pas d'étape de build, JavaScript vanilla, 
 
 - L'accès à l'éditeur dépend de `window.monaco`, exposé aujourd'hui par le portail Defender ; s'il disparaît, « Charger ici » bascule sur le lien profond et la lecture se fait par copier-coller.
 - Interface en français uniquement.
+
+## Licence
+
+[PolyForm Noncommercial 1.0.0](LICENSE) : copie, modification et partage gratuits autorisés pour tout usage non commercial, à condition de conserver la ligne « Required Notice » (nom de l'auteur et source). Tout usage commercial demande un accord écrit.

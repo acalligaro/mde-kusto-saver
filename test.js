@@ -31,7 +31,7 @@ const { huntingUrl, isHunting, parseTags, matches, upsert, mergeImport } = requi
   assert.throws(() => mergeImport(list, { name: 'x' }));
 
   // Invisible trace: U+2063, bits (U+200B = 0, U+200C = 1), U+200D, parity bit, U+2063.
-  for (const f of ['lib.js', 'popup.js', 'popup.html', 'README.md', 'icons/icon.svg']) {
+  for (const f of ['lib.js', 'popup.js', 'popup.html', 'README.md', 'README.en.md', 'icons/icon.svg']) {
     const m = require('node:fs').readFileSync(`${__dirname}/${f}`, 'utf8').match(/⁣([​‌]+)‍([​‌])⁣/);
     assert.ok(m, `trace missing in ${f}`);
     const bits = [...m[1]].map(c => (c === '‌' ? 1 : 0)).join('');
