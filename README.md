@@ -10,7 +10,8 @@ Extension Chrome / Edge (Manifest V3) : bibliothèque locale de requêtes KQL po
 ## Utilisation
 
 - **Enregistrer** : sur la page de chasse avancée, ouvrir le menu de l'extension. La requête de l'éditeur est lue automatiquement (bouton « ↻ Lire l'éditeur » pour relire). Donner un nom, des tags, « Enregistrer ».
-- **Charger** : « ▶ Charger » ouvre la requête dans un nouvel onglet de requête de la chasse avancée (les onglets ouverts gardent leur contenu), via un lien profond `?query=` (KQL en UTF-16LE, compressée gzip puis Base64 : format attendu par le portail).
+- **Charger ici** : « ▶ Charger ici » remplace le contenu de l'onglet de requête actif (immédiat). Hors de la chasse avancée, bascule sur « Nouvel onglet ».
+- **Nouvel onglet** : « ＋ Nouvel onglet » ouvre la requête dans un nouvel onglet de requête (les onglets ouverts gardent leur contenu ; rafraîchissement automatique de la page), via un lien profond `?query=` (KQL en UTF-16LE, compressée gzip puis Base64 : format attendu par le portail).
 - **Modifier** : clic sur le nom, puis « Enregistrer ». « Nouveau » vide le formulaire.
 - **Rechercher** : tous les mots doivent apparaître dans le nom, les tags ou la requête.
 - **Exporter / Importer** : fichier JSON. L'import s'ouvre dans un onglet (le sélecteur de fichier ferme le menu) ; une entrée importée remplace celle de même `id`.
@@ -25,8 +26,9 @@ Inspirée de Tenant Compass : pas de build, JavaScript vanilla, fonctions pures 
 | `popup.html` / `popup.js` | Menu (aussi page d'options en onglet) : formulaire, liste, import / export |
 | `lib.js` | `huntingUrl`, `isHunting`, `parseTags`, `matches`, `upsert`, `mergeImport` |
 | `test.js` | `node test.js` (Node 18+) |
+| `icons/` | `icon.svg` (source : bouclier bicolore + base de données) et ses rendus PNG 16 / 32 / 48 / 128 |
 
-Aucun content script permanent : le menu injecte à la demande (`chrome.scripting.executeScript`, monde MAIN) une fonction qui lit l'éditeur Monaco via `window.monaco`. Aucun appel réseau, aucun jeton lu.
+Aucun content script permanent : le menu injecte à la demande (`chrome.scripting.executeScript`, monde MAIN) une fonction qui lit ou écrit l'éditeur Monaco via `window.monaco`. Aucun appel réseau, aucun jeton lu.
 
 Stockage : `chrome.storage.local`, clé `queries` :
 

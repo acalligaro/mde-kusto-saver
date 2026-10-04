@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b9af3"/><stop offset="1" stop-color="#0063b1"/></linearGradient>
+    <linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0078d4"/><stop offset="1" stop-color="#3b3fa8"/></linearGradient>
+  </defs>
+  <!-- Shield: left half lighter, right half darker -->
+  <path d="M64 6 C48 16 32 20 14 20 V62 C14 94 36 112 64 124 Z" fill="url(#l)"/>
+  <path d="M64 6 C80 16 96 20 114 20 V62 C114 94 92 112 64 124 Z" fill="url(#r)"/>
+  <!-- Database cylinder: the saved queries -->
+  <g fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round">
+    <ellipse cx="64" cy="44" rx="24" ry="9"/>
+    <path d="M40 44 V84 C40 89 51 93 64 93 C77 93 88 89 88 84 V44"/>
+    <path d="M40 64 C40 69 51 73 64 73 C77 73 88 69 88 64"/>
+  </g>
+</svg>

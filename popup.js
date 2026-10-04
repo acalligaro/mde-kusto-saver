@@ -13,6 +13,14 @@ function readEditor() {
   const model = m && m.getModels && m.getModels()[0];
   return model ? model.getValue() : (String(getSelection()) || null);
 }
+function writeEditor(text) {
+  const m = window.monaco && window.monaco.editor;
+  const ed = m && m.getEditors && m.getEditors()[0];
+  if (!ed) return false;
+  ed.setValue(text);
+  ed.focus();
+  return true;
+}
 
 async function activeTab() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -36,8 +44,15 @@ async function grab() {
   else say(tab ? 'Éditeur non lu : collez la requête.' : 'Ouvrez la chasse avancée sur security.microsoft.com.');
 }
 
-// The deep link opens the query in a new query tab of advanced hunting: the open tabs keep their content.
-async function load(item) {
+// Replaces the content of the active query tab; without a reachable editor, falls back to a new query tab.
+async function loadHere(item) {
+  const tab = await activeTab();
+  if (tab && await inPage(tab.id, writeEditor, [item.query])) return say(`« ${item.name} » chargée dans l'éditeur.`);
+  loadNew(item);
+}
+
+// The deep link opens the query in a new query tab of advanced hunting (page reload): the open tabs keep their content.
+async function loadNew(item) {
   const tab = await activeTab();
   const url = await huntingUrl(item.query);
   if (tab) chrome.tabs.update(tab.id, { url }); else chrome.tabs.create({ url });
@@ -57,6 +72,7 @@ function el(tag, props = {}, ...kids) {
   return e;
 }
 function btn(text, onclick, className = '') { return el('button', { textContent: text, onclick, className }); }
+function tip(e, text) { e.dataset.tip = text; e.setAttribute('aria-label', `${e.textContent} : ${text}`); return e; }
 
 function render() {
   const search = $('search').value;
@@ -74,7 +90,8 @@ function render() {
         ...item.tags.map(t => el('span', { className: 'tag', textContent: t }))),
       el('pre', { textContent: item.query }),
       el('div', { className: 'actions' },
-        btn('▶ Charger', () => load(item), 'primary'),
+        tip(btn('▶ Charger ici', () => loadHere(item), 'primary'), 'Remplace le contenu de l\'onglet de requête actif'),
+        tip(btn('＋ Nouvel onglet', () => loadNew(item)), 'Rafraîchissement automatique de la page'),
         btn('Copier KQL', () => navigator.clipboard.writeText(item.query).then(() => say('KQL copiée.'))),
         btn('Modifier', () => edit(item)),
         del));
@@ -82,12 +99,14 @@ function render() {
 }
 
 $('grab').onclick = grab;
-$('clear').onclick = () => { editingId = null; $('name').value = $('tags').value = $('query').value = ''; say(''); };
+const clearForm = () => { editingId = null; $('name').value = $('tags').value = $('query').value = ''; };
+$('clear').onclick = () => { clearForm(); say(''); };
 $('save').onclick = () => {
   const name = $('name').value.trim(), query = $('query').value.trim();
   if (!name || !query) return say('Nom et requête obligatoires.');
   items = upsert(items, { id: editingId || crypto.randomUUID(), name, tags: parseTags($('tags').value), query, updated: new Date().toISOString() });
-  editingId = items[0].id;
+  // Empty form after saving: the next save is a new entry, never a silent overwrite of this one.
+  clearForm();
   save(); render(); say(`« ${name} » enregistrée.`);
 };
 $('search').oninput = render;
@@ -95,7 +114,7 @@ $('export').onclick = () => {
   const a = el('a', { href: URL.createObjectURL(new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' })),
     download: `mde-kusto-queries-${new Date().toISOString().slice(0, 10)}.json` });
   a.click();
-  URL.revokeObjectURL(a.href);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };
 $('import').onclick = async () => {
   // The file picker closes the popup: import from the options page opened in a tab.
