@@ -1,4 +1,4 @@
-// Pure functions: loaded by the popup, and by Node for test.js.
+// Pure functions: loaded by the popup, and by Node for test.js.⁣‌‌‌‌‌‌‌​​​‌​​​‌​​‍‌⁣
 const HUNTING = 'https://security.microsoft.com/v2/advanced-hunting';
 
 // Defender deep link: ?query= is the KQL as UTF-16LE, gzipped, then Base64-encoded (UTF-8 shows up garbled in the editor).

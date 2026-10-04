@@ -1,39 +1,85 @@
 # MDE Kusto Saver
 
-Extension Chrome / Edge (Manifest V3) : bibliothèque locale de requêtes KQL pour la chasse avancée Microsoft Defender (`security.microsoft.com`).
+Extension Chrome / Edge (Manifest V3) : bibliothèque locale de requêtes KQL pour la chasse avancée Microsoft Defender (`security.microsoft.com`). Enregistrer une requête depuis l'éditeur, la retrouver, la recharger en un clic.⁣‌‌‌‌‌‌‌​​​‌​​​‌​​‍‌⁣
+
+![Menu de l'extension](docs/img/01-popup.png)
 
 ## Installation
 
-1. `chrome://extensions` (ou `edge://extensions`), activer le mode développeur.
-2. « Charger l'extension non empaquetée », choisir ce dossier.
+1. Ouvrir `chrome://extensions` (ou `edge://extensions`) et activer le **mode développeur**.
+2. **Charger l'extension non empaquetée** et choisir ce dossier.
+3. Épingler l'icône (bouclier bleu) dans la barre d'outils.
+
+Après une mise à jour du code : bouton ↻ de l'extension dans `chrome://extensions`.
 
 ## Utilisation
 
-- **Enregistrer** : sur la page de chasse avancée, ouvrir le menu de l'extension. La requête de l'éditeur est lue automatiquement (bouton « ↻ Lire l'éditeur » pour relire). Donner un nom, des tags, « Enregistrer ».
-- **Charger ici** : « ▶ Charger ici » remplace le contenu de l'onglet de requête actif (immédiat). Hors de la chasse avancée, bascule sur « Nouvel onglet ».
-- **Nouvel onglet** : « ＋ Nouvel onglet » ouvre la requête dans un nouvel onglet de requête (les onglets ouverts gardent leur contenu ; rafraîchissement automatique de la page), via un lien profond `?query=` (KQL en UTF-16LE, compressée gzip puis Base64 : format attendu par le portail).
-- **Modifier** : clic sur le nom, puis « Enregistrer ». « Nouveau » vide le formulaire.
-- **Rechercher** : tous les mots doivent apparaître dans le nom, les tags ou la requête.
-- **Exporter / Importer** : fichier JSON. L'import s'ouvre dans un onglet (le sélecteur de fichier ferme le menu) ; une entrée importée remplace celle de même `id`.
+### Enregistrer une requête
 
-## Architecture
+1. Ouvrir la chasse avancée (`security.microsoft.com/v2/advanced-hunting`).
+2. Ouvrir le menu de l'extension : la requête de l'onglet de requête actif est lue automatiquement. « ↻ Lire l'éditeur » la relit.
+3. Saisir un nom et, si besoin, des tags séparés par des virgules.
+4. **Enregistrer**. Le formulaire se vide : l'enregistrement suivant crée une nouvelle entrée.
 
-Inspirée de Tenant Compass : pas de build, JavaScript vanilla, fonctions pures dans `lib.js` testées sous Node.
+La requête peut aussi être collée à la main dans le champ.
 
-| Fichier | Rôle |
+### Retrouver une requête
+
+Tous les mots de la recherche doivent apparaître dans le nom, les tags ou le texte de la requête (casse ignorée).
+
+![Recherche](docs/img/02-recherche.png)
+
+### Charger une requête
+
+| Bouton | Effet |
 |---|---|
-| `manifest.json` | Permissions `storage`, `unlimitedStorage`, `scripting` ; hôte `security.microsoft.com` uniquement |
-| `popup.html` / `popup.js` | Menu (aussi page d'options en onglet) : formulaire, liste, import / export |
-| `lib.js` | `huntingUrl`, `isHunting`, `parseTags`, `matches`, `upsert`, `mergeImport` |
-| `test.js` | `node test.js` (Node 18+) |
-| `icons/` | `icon.svg` (source : bouclier bicolore + base de données) et ses rendus PNG 16 / 32 / 48 / 128 |
+| **▶ Charger ici** | Remplace le contenu de l'onglet de requête actif, sans recharger la page. Hors de la chasse avancée, se comporte comme « Nouvel onglet ». |
+| **＋ Nouvel onglet** | Ouvre la requête dans un nouvel onglet de requête. Les onglets déjà ouverts gardent leur contenu. La page se recharge automatiquement. |
 
-Aucun content script permanent : le menu injecte à la demande (`chrome.scripting.executeScript`, monde MAIN) une fonction qui lit ou écrit l'éditeur Monaco via `window.monaco`. Aucun appel réseau, aucun jeton lu.
+Le survol d'un bouton affiche immédiatement ce qu'il fait :
 
-Stockage : `chrome.storage.local`, clé `queries` :
+![Info-bulle au survol](docs/img/03-survol.png)
+
+Résultat dans l'éditeur de la chasse avancée :
+
+![Requête chargée dans l'éditeur](docs/img/04-mde-editeur.png)
+
+### Autres actions
+
+- **Copier KQL** : copie le texte de la requête dans le presse-papiers.
+- **Modifier** (ou clic sur le nom) : remplit le formulaire ; « Enregistrer » met à jour l'entrée. « Nouveau » annule.
+- **Supprimer** : deux clics (« Confirmer ? »).
+- **Exporter JSON** : télécharge toute la bibliothèque (`mde-kusto-queries-AAAA-MM-JJ.json`).
+- **Importer JSON** : ouvre le menu dans un onglet (le sélecteur de fichier ferme le menu), puis choisir le fichier. Les entrées invalides sont ignorées ; une entrée de même `id` est remplacée.
+
+## Données
+
+Stockage local au profil du navigateur : `chrome.storage.local`, clé `queries`, entrées les plus récentes en premier.
 
 ```json
 [{ "id": "uuid", "name": "Exemple", "tags": ["mde"], "query": "DeviceEvents | take 10", "updated": "2026-10-04T12:00:00.000Z" }]
 ```
 
-Les données restent dans le profil du navigateur : exporter régulièrement pour sauvegarder ou partager.
+Rien n'est envoyé ailleurs. Exporter régulièrement pour sauvegarder ou partager la bibliothèque.
+
+## Architecture
+
+Même principes que Tenant Compass : pas d'étape de build, JavaScript vanilla, fonctions pures dans `lib.js` testées sous Node.
+
+| Fichier | Rôle |
+|---|---|
+| `manifest.json` | Permissions `storage`, `unlimitedStorage`, `scripting` ; hôte `security.microsoft.com` uniquement |
+| `popup.html` / `popup.js` | Menu (aussi page d'options ouverte en onglet) : formulaire, liste, import / export |
+| `lib.js` | `huntingUrl`, `isHunting`, `parseTags`, `matches`, `upsert`, `mergeImport` |
+| `test.js` | Tests : `node test.js` (Node 18+) |
+| `icons/` | `icon.svg` (source : bouclier bicolore + base de données) et rendus PNG 16 / 32 / 48 / 128 |
+| `docs/img/` | Captures de ce README |
+
+- **Aucun content script permanent.** Le menu injecte à la demande (`chrome.scripting.executeScript`, monde `MAIN`) une fonction qui lit ou écrit l'éditeur Monaco de la chasse avancée via `window.monaco`.
+- **Aucun appel réseau, aucun jeton lu.**
+- **Lien profond** (« Nouvel onglet ») : `https://security.microsoft.com/v2/advanced-hunting?query=…&timeRangeId=week`, où `query` est la KQL encodée en **UTF-16LE**, compressée en **gzip**, puis en **Base64** (un encodage UTF-8 s'affiche illisible dans l'éditeur).
+
+## Limites
+
+- L'accès à l'éditeur dépend de `window.monaco`, exposé aujourd'hui par le portail Defender ; s'il disparaît, « Charger ici » bascule sur le lien profond et la lecture se fait par copier-coller.
+- Interface en français uniquement.

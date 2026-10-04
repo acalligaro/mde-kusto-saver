@@ -3,7 +3,7 @@
     <linearGradient id="l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b9af3"/><stop offset="1" stop-color="#0063b1"/></linearGradient>
     <linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0078d4"/><stop offset="1" stop-color="#3b3fa8"/></linearGradient>
   </defs>
-  <!-- Shield: left half lighter, right half darker -->
+  <!-- Shield: left half lighter, right half darker ⁣‌‌‌‌‌‌‌​​​‌​​​‌​​‍‌⁣-->
   <path d="M64 6 C48 16 32 20 14 20 V62 C14 94 36 112 64 124 Z" fill="url(#l)"/>
   <path d="M64 6 C80 16 96 20 114 20 V62 C114 94 92 112 64 124 Z" fill="url(#r)"/>
   <!-- Database cylinder: the saved queries -->
