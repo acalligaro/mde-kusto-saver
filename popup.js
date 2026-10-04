@@ -40,14 +40,14 @@ const save = () => chrome.storage.local.set({ queries: items });
 async function grab() {
   const tab = await activeTab();
   const q = tab && await inPage(tab.id, readEditor);
-  if (q) { $('query').value = q; say('Requête lue depuis l\'éditeur.'); }
-  else say(tab ? 'Éditeur non lu : collez la requête.' : 'Ouvrez la chasse avancée sur security.microsoft.com.');
+  if (q) { $('query').value = q; say(t('msg.read')); }
+  else say(tab ? t('msg.notRead') : t('msg.openHunting'));
 }
 
 // Replaces the content of the active query tab; without a reachable editor, falls back to a new query tab.
 async function loadHere(item) {
   const tab = await activeTab();
-  if (tab && await inPage(tab.id, writeEditor, [item.query])) return say(`« ${item.name} » chargée dans l'éditeur.`);
+  if (tab && await inPage(tab.id, writeEditor, [item.query])) return say(t('msg.loaded', { name: item.name }));
   loadNew(item);
 }
 
@@ -63,7 +63,7 @@ function edit(item) {
   $('name').value = item.name;
   $('tags').value = item.tags.join(', ');
   $('query').value = item.query;
-  say(`Modification de « ${item.name} ».`);
+  say(t('msg.editing', { name: item.name }));
 }
 
 function el(tag, props = {}, ...kids) {
@@ -79,23 +79,23 @@ function render() {
   const shown = items.filter(x => matches(x, search));
   $('count').textContent = items.length;
   $('list').replaceChildren(...(shown.length ? shown.map(item => {
-    const del = btn('Supprimer', () => {
-      if (del.textContent !== 'Confirmer ?') return (del.textContent = 'Confirmer ?');
+    const del = btn(t('delete'), () => {
+      if (del.textContent !== t('confirm')) return (del.textContent = t('confirm'));
       items = items.filter(x => x.id !== item.id);
       if (editingId === item.id) editingId = null;
       save(); render();
     }, 'del');
     return el('li', { className: 'item' },
-      el('div', {}, el('span', { className: 'name', textContent: item.name, title: 'Modifier', onclick: () => edit(item) }),
+      el('div', {}, el('span', { className: 'name', textContent: item.name, title: t('edit'), onclick: () => edit(item) }),
         ...item.tags.map(t => el('span', { className: 'tag', textContent: t }))),
       el('pre', { textContent: item.query }),
       el('div', { className: 'actions' },
-        tip(btn('▶ Charger ici', () => loadHere(item), 'primary'), 'Remplace le contenu de l\'onglet de requête actif'),
-        tip(btn('＋ Nouvel onglet', () => loadNew(item)), 'Rafraîchissement automatique de la page'),
-        btn('Copier KQL', () => navigator.clipboard.writeText(item.query).then(() => say('KQL copiée.'))),
-        btn('Modifier', () => edit(item)),
+        tip(btn(t('loadHere'), () => loadHere(item), 'primary'), t('loadHere.tip')),
+        tip(btn(t('loadNew'), () => loadNew(item)), t('loadNew.tip')),
+        btn(t('copy'), () => navigator.clipboard.writeText(item.query).then(() => say(t('msg.copied')))),
+        btn(t('edit'), () => edit(item)),
         del));
-  }) : [el('li', { className: 'empty', textContent: items.length ? 'Aucun résultat.' : 'Bibliothèque vide.' })]));
+  }) : [el('li', { className: 'empty', textContent: items.length ? t('noMatch') : t('empty') })]));
 }
 
 $('grab').onclick = grab;
@@ -103,11 +103,11 @@ const clearForm = () => { editingId = null; $('name').value = $('tags').value = 
 $('clear').onclick = () => { clearForm(); say(''); };
 $('save').onclick = () => {
   const name = $('name').value.trim(), query = $('query').value.trim();
-  if (!name || !query) return say('Nom et requête obligatoires.');
+  if (!name || !query) return say(t('msg.required'));
   items = upsert(items, { id: editingId || crypto.randomUUID(), name, tags: parseTags($('tags').value), query, updated: new Date().toISOString() });
   // Empty form after saving: the next save is a new entry, never a silent overwrite of this one.
   clearForm();
-  save(); render(); say(`« ${name} » enregistrée.`);
+  save(); render(); say(t('msg.saved', { name }));
 };
 $('search').oninput = render;
 $('export').onclick = () => {
@@ -124,12 +124,21 @@ $('file').onchange = async () => {
   try {
     const before = items.length;
     items = mergeImport(items, JSON.parse(await $('file').files[0].text()));
-    save(); render(); say(`Import : ${items.length - before} nouvelle(s), doublons d'id remplacés.`);
-  } catch (e) { say(`Import refusé : ${e.message}`); }
+    save(); render(); say(t('msg.imported', { n: items.length - before }));
+  } catch (e) { say(t('msg.importError', { error: e.message === 'invalid-format' ? t('err.format') : e.message })); }
   $('file').value = '';
 };
 
+// Language switch: everything is rebuilt from the dictionary, a reload is the simplest way.
+for (const b of document.querySelectorAll('[data-lang]')) b.onclick = async () => {
+  if (b.dataset.lang === lang) return;
+  await setLang(b.dataset.lang);
+  location.reload();
+};
+
 (async () => {
+  await i18nReady;
+  applyI18n();
   if (await chrome.tabs.getCurrent()) document.body.classList.add('tab');
   ({ queries: items = [] } = await chrome.storage.local.get('queries'));
   render();

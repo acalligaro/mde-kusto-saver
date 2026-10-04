@@ -30,8 +30,13 @@ const { huntingUrl, isHunting, parseTags, matches, upsert, mergeImport } = requi
   assert.deepStrictEqual(merged.find(x => x.id === 'a').tags, ['t']);
   assert.throws(() => mergeImport(list, { name: 'x' }));
 
+  // Every UI string exists in both languages, with the same {placeholders}.
+  const { I18N } = require('./i18n.js');
+  assert.deepStrictEqual(Object.keys(I18N.en).sort(), Object.keys(I18N.fr).sort());
+  for (const k in I18N.fr) assert.deepStrictEqual((I18N.en[k].match(/\{\w+\}/g) || []).sort(), (I18N.fr[k].match(/\{\w+\}/g) || []).sort(), k);
+
   // Invisible trace: U+2063, bits (U+200B = 0, U+200C = 1), U+200D, parity bit, U+2063.
-  for (const f of ['lib.js', 'popup.js', 'popup.html', 'README.md', 'README.en.md', 'icons/icon.svg']) {
+  for (const f of ['lib.js', 'i18n.js', 'popup.js', 'popup.html', 'README.md', 'README.en.md', 'icons/icon.svg']) {
     const m = require('node:fs').readFileSync(`${__dirname}/${f}`, 'utf8').match(/⁣([​‌]+)‍([​‌])⁣/);
     assert.ok(m, `trace missing in ${f}`);
     const bits = [...m[1]].map(c => (c === '‌' ? 1 : 0)).join('');

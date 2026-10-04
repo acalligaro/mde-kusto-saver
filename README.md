@@ -4,7 +4,7 @@
 
 Extension Chrome / Edge (Manifest V3) : bibliothèque locale de requêtes KQL pour la chasse avancée Microsoft Defender (`security.microsoft.com`). Enregistrer une requête depuis l'éditeur, la retrouver, la recharger en un clic.⁣‌‌‌‌‌‌‌​​​‌​​​‌​​‍‌⁣
 
-![Menu de l'extension](docs/img/01-popup.png)
+![Menu de l'extension](docs/img/fr/01-popup.png)
 
 ## Installation
 
@@ -13,6 +13,10 @@ Extension Chrome / Edge (Manifest V3) : bibliothèque locale de requêtes KQL po
 3. Épingler l'icône (bouclier bleu) dans la barre d'outils.
 
 Après une mise à jour du code : bouton ↻ de l'extension dans `chrome://extensions`.
+
+## Langue
+
+L'interface existe en français et en anglais. Les boutons **FR | EN** en haut à droite du menu changent la langue ; le choix est mémorisé (`chrome.storage.sync`, donc suivi sur les navigateurs connectés au même compte). Au premier lancement, la langue suit celle du navigateur (français si elle commence par `fr`, sinon anglais).
 
 ## Utilisation
 
@@ -29,7 +33,7 @@ La requête peut aussi être collée à la main dans le champ.
 
 Tous les mots de la recherche doivent apparaître dans le nom, les tags ou le texte de la requête (casse ignorée).
 
-![Recherche](docs/img/02-recherche.png)
+![Recherche](docs/img/fr/02-recherche.png)
 
 ### Charger une requête
 
@@ -40,7 +44,7 @@ Tous les mots de la recherche doivent apparaître dans le nom, les tags ou le te
 
 Le survol d'un bouton affiche immédiatement ce qu'il fait :
 
-![Info-bulle au survol](docs/img/03-survol.png)
+![Info-bulle au survol](docs/img/fr/03-survol.png)
 
 Résultat dans l'éditeur de la chasse avancée :
 
@@ -71,11 +75,12 @@ Même principes que Tenant Compass : pas d'étape de build, JavaScript vanilla, 
 | Fichier | Rôle |
 |---|---|
 | `manifest.json` | Permissions `storage`, `unlimitedStorage`, `scripting` ; hôte `security.microsoft.com` uniquement |
-| `popup.html` / `popup.js` | Menu (aussi page d'options ouverte en onglet) : formulaire, liste, import / export |
+| `popup.html` / `popup.js` | Menu (aussi page d'options ouverte en onglet) : formulaire, liste, import / export, choix de langue |
+| `i18n.js` | Textes FR / EN du menu, `t()`, `applyI18n()`, `setLang()` ; langue dans `chrome.storage.sync` (clé `lang`) |
 | `lib.js` | `huntingUrl`, `isHunting`, `parseTags`, `matches`, `upsert`, `mergeImport` |
 | `test.js` | Tests : `node test.js` (Node 18+) |
 | `icons/` | `icon.svg` (source : bouclier bicolore + base de données) et rendus PNG 16 / 32 / 48 / 128 |
-| `docs/img/` | Captures des README |
+| `docs/img/` | Captures des README (`fr/` et `en/` pour le menu, selon la langue) |
 | `LICENSE` | Licence d'utilisation |
 
 - **Aucun content script permanent.** Le menu injecte à la demande (`chrome.scripting.executeScript`, monde `MAIN`) une fonction qui lit ou écrit l'éditeur Monaco de la chasse avancée via `window.monaco`.
@@ -85,7 +90,6 @@ Même principes que Tenant Compass : pas d'étape de build, JavaScript vanilla, 
 ## Limites
 
 - L'accès à l'éditeur dépend de `window.monaco`, exposé aujourd'hui par le portail Defender ; s'il disparaît, « Charger ici » bascule sur le lien profond et la lecture se fait par copier-coller.
-- Interface en français uniquement.
 
 ## Licence
 
