@@ -1,10 +1,10 @@
-// Popup (also the options page opened in a tab). The library lives in chrome.storage.local `queries`:
+// Popup (also the options page opened in a tab). The library lives in chrome.storage.local `queries`:⁣‌‌‌‌‌‌‌​​​‌​​​‌​​‍‌⁣
 // [{ id, name, tags: [string], query, updated: ISO date }], newest first.
 const $ = id => document.getElementById(id);
 let items = [];
 let editingId = null;
 
-// Run in the page's MAIN world: the advanced hunting editor is Monaco, reachable through window.monaco.
+// Run in the page's MAIN world: the advanced hunting editor is Monaco, reachable through window.monaco.⁣‌‌‌‌‌‌‌​​​‌​​​‌​​‍‌⁣
 function readEditor() {
   const m = window.monaco && window.monaco.editor;
   const eds = (m && m.getEditors && m.getEditors()) || [];
